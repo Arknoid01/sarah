@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mon Tableau de Défis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --blue-dark:  #0D47A1;
+  --blue-mid:   #1565C0;
+  --blue-light: #5BAAF5;
+  --blue-pale:  #E3F2FD;
+  --blue-pal2:  #EEF6FF;
+  --gold:       #FFD700;
+  --gold-dark:  #C9A800;
+  --grey:       #B0BEC5;
+  --grey-dark:  #546E7A;
+  --white:      #fff;
+
+  /* Tailles fluides selon la largeur écran */
+  --widget-pad: clamp(8px, 3vw, 14px);
+  --panel-pad:  clamp(10px, 3.5vw, 16px);
+  --gap:        clamp(6px, 2vw, 10px);
+
+  --fs-title:   clamp(15px, 4.5vw, 20px);
+  --fs-label:   clamp(12px, 3.5vw, 15px);
+  --fs-badge:   clamp(10px, 3vw, 13px);
+  --fs-toggle:  clamp(11px, 3vw, 13px);
+  --fs-pts:     clamp(11px, 3vw, 13px);
+  --fs-total-n: clamp(30px, 9vw, 42px);
+  --fs-total-l: clamp(12px, 3.5vw, 15px);
+  --fs-sub:     clamp(9px, 2.5vw, 11px);
+  --fs-rew-name:clamp(10px, 3vw, 12px);
+  --fs-rew-cost:clamp(10px, 2.8vw, 12px);
+  --fs-rew-st:  clamp(9px, 2.5vw, 11px);
+  --fs-emoji:   clamp(20px, 6vw, 28px);
+  --fs-rew-emo: clamp(22px, 7vw, 32px);
+
+  --toggle-w:   clamp(50px, 14vw, 62px);
+  --toggle-h:   clamp(28px, 8vw, 34px);
+  --toggle-dot: clamp(20px, 5.5vw, 26px);
+  --toggle-off: calc((var(--toggle-h) - var(--toggle-dot)) / 2);
+  --toggle-on:  calc(var(--toggle-w) - var(--toggle-dot) - var(--toggle-off));
+
+  --stud-size:  clamp(11px, 3.2vw, 15px);
+  --radius-lg:  clamp(12px, 3vw, 18px);
+  --radius-md:  clamp(9px, 2.5vw, 14px);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #c8dcf0;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(8px, 3vw, 20px);
+}
+
+/* ===== WIDGET PRINCIPAL ===== */
+.w {
+  background: var(--blue-mid);
+  border-radius: var(--radius-lg);
+  padding: var(--widget-pad);
+  border: clamp(3px, 1vw, 5px) solid var(--blue-dark);
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ===== STUDS (rangées LEGO) ===== */
+.studs {
+  display: flex;
+  gap: clamp(3px, 1vw, 5px);
+  flex-wrap: wrap;
+  margin-bottom: var(--gap);
+}
+.stud {
+  width: var(--stud-size);
+  height: var(--stud-size);
+  background: var(--blue-light);
+  border-radius: 50%;
+  border: clamp(1.5px, 0.5vw, 2.5px) solid var(--blue-dark);
+  flex-shrink: 0;
+}
+
+/* ===== PANEL PRINCIPAL ===== */
+.panel {
+  background: var(--blue-pale);
+  border-radius: var(--radius-md);
+  border: clamp(2px, 0.8vw, 4px) solid var(--blue-mid);
+  padding: var(--panel-pad);
+  margin-bottom: var(--gap);
+}
+
+/* ===== TITLE ROW ===== */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 2vw, 10px);
+  margin-bottom: clamp(4px, 1.2vw, 6px);
+}
+
+/* Figurines LEGO – taille fluide */
+.fig { display: flex; flex-direction: column; align-items: center; gap: 1px; transform: scale(clamp(0.75, 2.2vw, 1.1)); transform-origin: bottom center; }
+.fig-hat   { width:13px;height:5px;background:var(--gold);border-radius:3px 3px 0 0;border:2px solid var(--gold-dark);margin-bottom:-1px; }
+.fig-head  { width:16px;height:14px;background:var(--gold);border-radius:50% 50% 40% 40%;border:2px solid var(--gold-dark);position:relative; }
+.fig-head::before { content:'^^';font-size:4px;color:var(--blue-dark);letter-spacing:1px;position:absolute;top:3px;left:2px; }
+.fig-head::after  { content:'‿';font-size:6px;color:var(--blue-mid);position:absolute;bottom:1px;left:3px; }
+.fig-body  { width:20px;height:14px;background:var(--blue-mid);border-radius:3px;border:2px solid var(--blue-dark);display:flex;align-items:center;justify-content:center; }
+.fig-body span { width:9px;height:5px;background:var(--gold);border-radius:2px;border:1px solid var(--gold-dark);display:block; }
+.fig-arms  { display:flex;gap:2px;margin-top:-1px; }
+.fig-arm   { width:5px;height:9px;background:var(--blue-mid);border-radius:3px;border:2px solid var(--blue-dark); }
+.fig-legs  { display:flex;gap:2px;margin-top:1px; }
+.fig-leg   { width:7px;height:9px;background:var(--blue-dark);border-radius:0 0 3px 3px;border:2px solid #0A3580; }
+.fig2 .fig-hat  { background:var(--blue-light);border-color:var(--blue-mid); }
+.fig2 .fig-body { background:var(--blue-light);border-color:var(--blue-mid); }
+.fig2 .fig-arm  { background:var(--blue-light);border-color:var(--blue-mid); }
+.fig2 .fig-body span { background:var(--blue-dark);border-color:#0A3580; }
+
+.title-text {
+  font-size: var(--fs-title);
+  font-weight: 900;
+  color: var(--blue-dark);
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.subtitle {
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  color: var(--white);
+  background: var(--blue-mid);
+  border-radius: 20px;
+  padding: clamp(2px,0.8vw,4px) clamp(8px,3vw,14px);
+  display: block;
+  text-align: center;
+  margin: 0 auto clamp(8px,2.5vw,12px);
+  width: fit-content;
+}
+
+/* ===== CARTES DÉFIS ===== */
+.defi-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: clamp(2px,0.7vw,3px) solid #90CAF9;
+  padding: clamp(10px,3vw,14px);
+  margin-bottom: var(--gap);
+}
+.defi-card:nth-child(even) { background: var(--blue-pal2); }
+
+.defi-top {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(6px,2vw,10px);
+  margin-bottom: clamp(8px,2.5vw,12px);
+}
+.defi-emoji { font-size: var(--fs-emoji); flex-shrink: 0; line-height: 1; }
+.defi-info  { flex: 1; min-width: 0; }
+.defi-label {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  color: var(--blue-dark);
+  line-height: 1.35;
+  margin-bottom: clamp(3px,1vw,5px);
+  word-break: break-word;
+}
+.badge {
+  display: inline-block;
+  background: var(--blue-mid);
+  color: var(--gold);
+  border-radius: 20px;
+  padding: clamp(1px,0.5vw,3px) clamp(7px,2.5vw,11px);
+  font-size: var(--fs-badge);
+  font-weight: 900;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(4px,1.5vw,8px);
+  flex-wrap: nowrap;
+}
+.toggle-label {
+  font-size: var(--fs-toggle);
+  font-weight: 700;
+  color: var(--blue-light);
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pts-earned {
+  font-size: var(--fs-pts);
+  font-weight: 900;
+  color: var(--grey);
+  min-width: clamp(48px, 13vw, 64px);
+  text-align: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.pts-earned.active { color: var(--blue-mid); }
+
+.toggle-btn {
+  width: var(--toggle-w);
+  height: var(--toggle-h);
+  border-radius: calc(var(--toggle-h) / 2);
+  background: var(--grey);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.toggle-btn.on { background: var(--blue-mid); }
+.toggle-btn::after {
+  content: '';
+  position: absolute;
+  top: var(--toggle-off);
+  left: var(--toggle-off);
+  width: var(--toggle-dot);
+  height: var(--toggle-dot);
+  border-radius: 50%;
+  background: var(--white);
+  transition: transform 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+.toggle-btn.on::after { transform: translateX(var(--toggle-on)); }
+
+/* ===== BARRE TOTAL ===== */
+.total-bar {
+  background: var(--blue-dark);
+  border-radius: var(--radius-md);
+  padding: clamp(10px,3vw,16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: clamp(4px,1.5vw,6px);
+}
+.total-label { font-size: var(--fs-total-l); font-weight: 900; color: var(--gold); }
+.total-max   { font-size: clamp(9px,2.5vw,12px); color: #90CAF9; font-weight: 700; margin-top: 2px; }
+.total-score { font-size: var(--fs-total-n); font-weight: 900; color: var(--gold); line-height: 1; }
+
+/* ===== BRIQUES DÉCO ===== */
+.bricks-row {
+  display: flex;
+  gap: clamp(3px,1vw,5px);
+  justify-content: center;
+  margin-top: clamp(7px,2vw,10px);
+  flex-wrap: wrap;
+}
+.brick {
+  background: var(--blue-mid);
+  border-radius: 4px;
+  border: clamp(1.5px,0.5vw,2.5px) solid var(--blue-dark);
+  padding: clamp(2px,0.8vw,4px) clamp(4px,1.5vw,7px);
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.brick.yellow { background: var(--gold); border-color: var(--gold-dark); }
+.bdot { width:7px;height:7px;background:var(--blue-light);border-radius:50%;border:1.5px solid var(--blue-dark); }
+.brick.yellow .bdot { background: var(--blue-pale); border-color: var(--gold-dark); }
+
+/* ===== PANNEAU RÉCOMPENSES ===== */
+.rew-panel {
+  background: var(--blue-dark);
+  border-radius: var(--radius-md);
+  padding: var(--panel-pad);
+  border: clamp(2px,0.7vw,3px) solid #0A3580;
+}
+.rew-title {
+  font-size: clamp(13px,3.8vw,16px);
+  font-weight: 900;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: clamp(8px,2.5vw,12px);
+  letter-spacing: 0.5px;
+}
+
+.rew-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+/* Sur très petits écrans (<320px) → une seule colonne */
+@media (max-width: 320px) {
+  .rew-grid { grid-template-columns: 1fr; }
+}
+
+.rew-card {
+  border-radius: clamp(8px,2.5vw,12px);
+  border: clamp(2px,0.7vw,3px) solid var(--blue-mid);
+  padding: clamp(8px,2.5vw,12px) clamp(6px,2vw,10px) clamp(6px,2vw,9px);
+  text-align: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.rew-card:active { transform: scale(0.97); }
+.rew-card.locked   { background: var(--grey); border-color: #90A4AE; }
+.rew-card.unlocked { background: var(--blue-pale); border-color: var(--blue-mid); }
+.rew-card.claimed  { background: var(--gold); border-color: var(--gold-dark); }
+
+.rew-emoji { font-size: var(--fs-rew-emo); display: block; margin-bottom: 3px; }
+.rew-name  {
+  font-size: var(--fs-rew-name);
+  font-weight: 900;
+  color: var(--blue-dark);
+  margin: 3px 0 5px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.rew-card.locked .rew-name { color: var(--grey-dark); }
+
+.rew-cost {
+  display: inline-block;
+  border-radius: 20px;
+  padding: clamp(1px,0.5vw,3px) clamp(6px,2vw,10px);
+  font-size: var(--fs-rew-cost);
+  font-weight: 900;
+  border: 2px solid var(--gold-dark);
+}
+.rew-card.locked   .rew-cost { background:#CFD8DC;color:var(--grey-dark);border-color:#90A4AE; }
+.rew-card.unlocked .rew-cost { background:var(--gold);color:var(--blue-dark);border-color:var(--gold-dark); }
+.rew-card.claimed  .rew-cost { background:var(--blue-dark);color:var(--gold);border-color:#0A3580; }
+
+.rew-status {
+  font-size: var(--fs-rew-st);
+  font-weight: 700;
+  display: block;
+  margin-top: 5px;
+  color: var(--grey-dark);
+  line-height: 1.3;
+}
+.rew-card.unlocked .rew-status { color: var(--blue-mid); }
+.rew-card.claimed  .rew-status { color: #7B3F00; }
+
+/* ===== BOUTON RESET ===== */
+.reset-btn {
+  display: block;
+  width: 100%;
+  margin-top: clamp(8px,2.5vw,12px);
+  background: rgba(255,255,255,0.12);
+  color: var(--blue-pale);
+  border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: clamp(10px,3vw,14px) 20px;
+  font-size: clamp(12px,3.5vw,14px);
+  font-weight: 900;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.2s;
+}
+.reset-btn:active { background: rgba(255,255,255,0.22); }
+
+/* ===== BREAKPOINTS SPÉCIFIQUES ===== */
+
+/* iPhone SE / petits téléphones ~375px */
+@media (max-width: 390px) {
+  .toggle-label { display: none; } /* libère de l'espace sur la ligne toggle */
+  .pts-earned { min-width: 42px; }
+}
+
+/* Tablettes → centré avec un peu plus de largeur */
+@media (min-width: 600px) {
+  body { align-items: center; min-height: 100dvh; padding: 24px; }
+  .w { max-width: 480px; }
+}
+
+/* Grand écran desktop */
+@media (min-width: 900px) {
+  .w { max-width: 520px; }
+}
+
+/* Safe area pour les iPhones avec notch / Dynamic Island */
+@supports (padding: max(0px)) {
+  body {
+    padding-left:  max(clamp(8px,3vw,20px), env(safe-area-inset-left));
+    padding-right: max(clamp(8px,3vw,20px), env(safe-area-inset-right));
+    padding-bottom: max(clamp(8px,3vw,20px), env(safe-area-inset-bottom));
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="w">
+  <div class="studs" id="studs-top"></div>
+
+  <div class="panel">
+    <div class="title-row">
+      <div class="fig">
+        <div class="fig-hat"></div><div class="fig-head"></div>
+        <div class="fig-body"><span></span></div>
+        <div class="fig-arms"><div class="fig-arm"></div><div class="fig-arm"></div></div>
+        <div class="fig-legs"><div class="fig-leg"></div><div class="fig-leg"></div></div>
+      </div>
+      <div class="title-text">🧱 Mon Tableau<br>de Défis ! 🧱</div>
+      <div class="fig fig2">
+        <div class="fig-hat"></div><div class="fig-head"></div>
+        <div class="fig-body"><span></span></div>
+        <div class="fig-arms"><div class="fig-arm"></div><div class="fig-arm"></div></div>
+        <div class="fig-legs"><div class="fig-leg"></div><div class="fig-leg"></div></div>
+      </div>
+    </div>
+    <span class="subtitle">✨ Construis ta réussite brique par brique ! ✨</span>
+
+    <div class="defi-card">
+      <div class="defi-top">
+        <span class="defi-emoji">👋</span>
+        <div class="defi-info">
+          <div class="defi-label">Je dis bonjour à mes deux professeurs</div>
+          <span class="badge">2 pts</span>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Défi relevé ?</span>
+        <span class="pts-earned" id="e0">0 / 2 pts</span>
+        <button class="toggle-btn" id="t0" ontouchend="tap(event,0)" onclick="toggle(0)" aria-label="Valider défi 1"></button>
+      </div>
+    </div>
+
+    <div class="defi-card">
+      <div class="defi-top">
+        <span class="defi-emoji">✋</span>
+        <div class="defi-info">
+          <div class="defi-label">Je réponds 2 fois en math</div>
+          <span class="badge">3 pts</span>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Défi relevé ?</span>
+        <span class="pts-earned" id="e1">0 / 3 pts</span>
+        <button class="toggle-btn" id="t1" ontouchend="tap(event,1)" onclick="toggle(1)" aria-label="Valider défi 2"></button>
+      </div>
+    </div>
+
+    <div class="defi-card">
+      <div class="defi-top">
+        <span class="defi-emoji">🏃</span>
+        <div class="defi-info">
+          <div class="defi-label">Je participe au sport (au moins 1 atelier)</div>
+          <span class="badge">5 pts</span>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Défi relevé ?</span>
+        <span class="pts-earned" id="e2">0 / 5 pts</span>
+        <button class="toggle-btn" id="t2" ontouchend="tap(event,2)" onclick="toggle(2)" aria-label="Valider défi 3"></button>
+      </div>
+    </div>
+
+    <div class="total-bar">
+      <div class="total-left">
+        <div class="total-label">⭐ Total de points</div>
+        <div class="total-max">sur 10 points possibles</div>
+      </div>
+      <div class="total-score" id="total-score">0</div>
+    </div>
+
+    <div class="bricks-row">
+      <div class="brick"><span class="bdot"></span><span class="bdot"></span></div>
+      <div class="brick yellow"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></div>
+      <div class="brick"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></div>
+      <div class="brick yellow"><span class="bdot"></span><span class="bdot"></span></div>
+      <div class="brick"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></div>
+    </div>
+  </div>
+
+  <div class="rew-panel">
+    <div class="rew-title">🏆 Mes Récompenses 🏆</div>
+    <div class="rew-grid">
+      <div class="rew-card locked" id="r0">
+        <span class="rew-emoji">🏡</span>
+        <div class="rew-name">Faire un nichoir</div>
+        <span class="rew-cost">4 points</span>
+        <span class="rew-status">🔒 encore 4 pts</span>
+      </div>
+      <div class="rew-card locked" id="r1">
+        <span class="rew-emoji">🛴</span>
+        <div class="rew-name">Trottinette &amp; vélo</div>
+        <span class="rew-cost">3 points</span>
+        <span class="rew-status">🔒 encore 3 pts</span>
+      </div>
+      <div class="rew-card locked" id="r2">
+        <span class="rew-emoji">🐴</span>
+        <div class="rew-name">Balade à cheval</div>
+        <span class="rew-cost">3 points</span>
+        <span class="rew-status">🔒 encore 3 pts</span>
+      </div>
+      <div class="rew-card locked" id="r3">
+        <span class="rew-emoji">🚲🐶</span>
+        <div class="rew-name">Vélo avec Aiko le chien</div>
+        <span class="rew-cost">5 points</span>
+        <span class="rew-status">🔒 encore 5 pts</span>
+      </div>
+    </div>
+    <button class="reset-btn" ontouchend="tapReset(event)" onclick="resetAll()">🔄 Recommencer une nouvelle matinée</button>
+  </div>
+
+  <div class="studs" id="studs-bot" style="margin-top:8px;margin-bottom:0;"></div>
+</div>
+
+<script>
+/* ===== STUDS DYNAMIQUES selon la largeur ===== */
+function buildStuds() {
+  const w = document.querySelector('.w').offsetWidth;
+  const studSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--stud-size')) || 14;
+  const gap = 4;
+  const pad = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--widget-pad')) || 10;
+  const n = Math.floor((w - pad * 2) / (studSize + gap));
+  const html = Array(Math.max(n, 4)).fill('<span class="stud"></span>').join('');
+  document.getElementById('studs-top').innerHTML = html;
+  document.getElementById('studs-bot').innerHTML = html;
+}
+window.addEventListener('resize', buildStuds);
+buildStuds();
+
+/* ===== LOGIQUE DÉFIS ===== */
+const defis = [{pts:2},{pts:3},{pts:5}];
+const rewards = [{cost:4},{cost:3},{cost:3},{cost:5}];
+const rewardClaimed = [false,false,false,false];
+const state = [false,false,false];
+
+function getTotal(){ return defis.reduce((s,d,i)=>s+(state[i]?d.pts:0),0); }
+
+function tap(e,i){ e.preventDefault(); toggle(i); }
+function tapReset(e){ e.preventDefault(); resetAll(); }
+
+function toggle(i){
+  state[i] = !state[i];
+  document.getElementById('t'+i).classList.toggle('on', state[i]);
+  const earn = document.getElementById('e'+i);
+  earn.textContent = (state[i]?defis[i].pts:0)+' / '+defis[i].pts+' pts';
+  earn.classList.toggle('active', state[i]);
+  updateRewards();
+}
+
+function updateRewards(){
+  const total = getTotal();
+  document.getElementById('total-score').textContent = total;
+  rewards.forEach((r,i)=>{
+    const card = document.getElementById('r'+i);
+    const status = card.querySelector('.rew-status');
+    if(rewardClaimed[i]){
+      card.className='rew-card claimed';
+      status.textContent='✅ Gagnée !';
+      card.onclick=null; card.ontouchend=null; card.style.cursor='default';
+    } else if(total >= r.cost){
+      card.className='rew-card unlocked';
+      status.textContent='🎉 Appuie pour valider !';
+      card.onclick=()=>claimReward(i);
+      card.ontouchend=(e)=>{ e.preventDefault(); claimReward(i); };
+      card.style.cursor='pointer';
+    } else {
+      card.className='rew-card locked';
+      const missing = r.cost - total;
+      status.textContent='🔒 encore '+missing+' pt'+(missing>1?'s':'');
+      card.onclick=null; card.ontouchend=null; card.style.cursor='default';
+    }
+  });
+}
+
+function claimReward(i){ rewardClaimed[i]=true; updateRewards(); }
+
+function resetAll(){
+  state.fill(false); rewardClaimed.fill(false);
+  for(let i=0;i<3;i++){
+    document.getElementById('t'+i).classList.remove('on');
+    const earn=document.getElementById('e'+i);
+    earn.textContent='0 / '+defis[i].pts+' pts';
+    earn.classList.remove('active');
+  }
+  updateRewards();
+}
+
+updateRewards();
+</script>
+</body>
+</html>
